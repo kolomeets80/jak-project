@@ -1,35 +1,14 @@
-name: Build Windows EXE
-on: [workflow_dispatch] # This lets you start it manually with a button
+name: Manual Build
+
+on:
+  workflow_dispatch: # This adds the "Run workflow" button
 
 jobs:
-  build:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Setup Tools
-        run: |
-          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-          Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
-          scoop install llvm nasm python task
-          echo "C:\Users\runneradmin\scoop\apps\llvm\current\bin" >> $GITHUB_PATH
-
-      - name: Configure CMake
-        run: >
-          cmake -S . -B build 
-          -T ClangCL 
-          -DCMAKE_BUILD_TYPE=Release          
-
-      - name: Build
-        run: |
-          cmake -B build -G "Visual Studio 17 2022" -T clang-cl
-          cmake --build build --config Release
-
-      - name: Upload EXE
-        uses: actions/upload-artifact@v4
-        with:
-          name: Jak-Project-Windows
-          path: build/bin/ # This is usually where CMake puts the .exe
+  run-the-build:
+    name: "Trigger Windows Build"
+    uses: ./.github/workflows/windows-build-clang.yaml
+    with:
+      cmakePreset: "Release-windows-clang-static"
+      cachePrefix: "static"
+      uploadArtifacts: true
+    secrets: inherit
