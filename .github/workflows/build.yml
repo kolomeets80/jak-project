@@ -17,6 +17,12 @@ jobs:
           scoop install llvm nasm python task
           echo "C:\Users\runneradmin\scoop\apps\llvm\current\bin" >> $GITHUB_PATH
 
+      - name: Configure CMake
+        run: >
+          cmake -S . -B build 
+          -T ClangCL 
+          -DCMAKE_BUILD_TYPE=Release          
+
       - name: Build
         run: |
           cmake -B build -G "Visual Studio 17 2022" -T clang-cl
